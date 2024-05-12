@@ -1,0 +1,18 @@
+{
+  "name": "wwebjs-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "mime-types": "^2.1.35",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "github:alechkos/whatsapp-web.js#forward-with-caption"
+  }
+}
