@@ -135,7 +135,7 @@ client.on('message', async (msg) => {
                     }
                     await chat.sendMessage(text, { mentions });
                 }
-            } else msg.reply('El comando solo esta disponible en un grupo.')
+            }
             
             
         
