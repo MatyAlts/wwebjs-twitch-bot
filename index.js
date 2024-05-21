@@ -6,6 +6,7 @@ const { Client, LegacySessionAuth, LocalAuth } = require('whatsapp-web.js');
 const { MessageMedia, Message, GroupChat } = require('whatsapp-web.js/src/structures');
 const mime = require('mime-types');
 const axios = require('axios');
+const schedule = require('node-schedule');
 
 async function esAdmin (msg){
     cliente = await msg.getContact();
@@ -46,7 +47,7 @@ const nombreArchivoDescargado = 'archivo_descargado.jpg';
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        dataPath: "sessionss",
+        dataPath: "sessionss3",
     }),
     puppeteer: {
         // puppeteer args here
@@ -89,60 +90,74 @@ client.on("ready", () => {
 })})
 
 client.on('message', async (msg) => {
-    if(msg.body === '!validacion'){
-        let Admin = false;
-        Admin = await esAdmin(msg);
-        if(Admin){
-            console.log(msg);
-            const myString = JSON.stringify(msg).replace(/\,/g, ',\n\n');
-            msg.reply(myString);
-            console.log(msg.id.participant)
-        } else msg.reply('Comando restringido a administradores')
-        
+    try{
+        if(msg.body === '!validacion'){
+            let Admin = false;
+            Admin = await esAdmin(msg);
+            if(Admin){
+                console.log(msg);
+                const myString = JSON.stringify(msg).replace(/\,/g, ',\n\n');
+                msg.reply(myString);
+                console.log(msg.id.participant)
+            } else msg.reply('Comando restringido a administradores')
+            
+        }
+    } catch (error){
+        console.log(error);
     }
+    
 })
 
 client.on('message', async (msg) => {
-    if (msg.body === '!everyone') {
-        const chat = await msg.getChat();
-        //console.log(chat.id.user)
-        let user = await msg.getContact();
-        //console.log(user.id.user)
-        let profilePicture = await user.getProfilePicUrl();
-        if(chat.isGroup){
-            if((chat.id.user == '51943297699-1622310081')){
-                if((user.id.user == '5492612071333') || (user.id.user == '5492615941303') || (user.id.user == '51943297699')){
-                    let text = "Prendemos stream gentee \n\n";
-                    let mentions = [];
-                    for (let participant of chat.participants) {
-                    mentions.push(`${participant.id.user}@c.us`);
-                    text += `@${participant.id.user} `;
+    try{
+        if (msg.body === '!everyone') {
+            const chat = await msg.getChat();
+            //console.log(chat.id.user)
+            let user = await msg.getContact();
+            //console.log(user.id.user)
+            if(chat.isGroup){
+                if((chat.id.user == '51943297699-1622310081')){
+                    if((user.id.user == '5492612071333') || (user.id.user == '5492615941303') || (user.id.user == '51943297699')){
+                        let text = "Prendemos stream gentee \n\n";
+                        let mentions = [];
+                        for (let participant of chat.participants) {
+                        mentions.push(`${participant.id.user}@c.us`);
+                        text += `@${participant.id.user} `;
+                    }
+                    await chat.sendMessage(text, { mentions });
                 }
-                await chat.sendMessage(text, { mentions });
-            }
-        } else if (((chat.id.user != '51943297699-1622310081'))){
-            let text = " ";
-                    let mentions = [];
-                    for (let participant of chat.participants) {
-                    mentions.push(`${participant.id.user}@c.us`);
-                    text += `@${participant.id.user} `;
+            } else if (((chat.id.user != '51943297699-1622310081'))){
+                let text = " ";
+                        let mentions = [];
+                        for (let participant of chat.participants) {
+                        mentions.push(`${participant.id.user}@c.us`);
+                        text += `@${participant.id.user} `;
+                    }
+                    await chat.sendMessage(text, { mentions });
                 }
-                await chat.sendMessage(text, { mentions });
-            }
-        } else msg.reply('El comando solo esta disponible en un grupo.')
+            } else msg.reply('El comando solo esta disponible en un grupo.')
+            
+            
         
-        
-    
+        }
+    } catch (error){
+        console.log(error);
     }
+    
 });
 
 client.on('message', async (msg) =>{
-    if (msg.body == '!soysub'){
-        const chat = await msg.getChat();
-        if(!chat.isGroup){
-        msg.reply('Para verificar que seas subscriptor, sigue los pasos a continuacion:\n\nEnvia una captura de tu suscripcion junto al comando \n!verificar\n\nNuestros moderadores verificaran si eres suscriptor y te agregarán al grupo de whatsapp.')
+    try{
+        if (msg.body == '!soysub'){
+            const chat = await msg.getChat();
+            if(!chat.isGroup){
+            msg.reply('Para verificar que seas subscriptor, sigue los pasos a continuacion:\n\nEnvia una captura de tu suscripcion junto al comando \n!verificar\n\nNuestros moderadores verificaran si eres suscriptor y te agregarán al grupo de whatsapp.')
+        }
+    } else msg.reply('Este comando solo esta disponible en privado.')
+    } catch (error){
+        console.log(error);
     }
-}
+    
 })
 
 client.on('message', async (msg) => {
@@ -175,6 +190,27 @@ client.on('message', async (msg) =>{
         } 
     } 
 })
+client.on('message', async (msg) => {
+    if(msg.body.startsWith('!spam')) {
+        const parts = msg.body.split(' ');
+        if(parts.length < 3) {
+            msg.reply('Por favor, proporciona el número de veces que deseas enviar el mensaje y el mensaje en sí. Ejemplo: !spam 5 Hola');
+            return;
+        }
+
+        const count = parseInt(parts[1]);
+        const message = parts.slice(2).join(' ');
+
+        if(isNaN(count) || count > 10) {
+            msg.reply('Por favor, proporciona un número válido de veces que deseas enviar el mensaje (máximo 10).');
+            return;
+        }
+
+        for(let i = 0; i < count; i++) {
+            client.sendMessage(msg.from, message);
+        }
+    }
+});
 
 client.on('message', async (msg) =>{
     if(msg.body == '!verificar2'){
@@ -189,6 +225,45 @@ client.on('message', async (msg) =>{
         } else msg.reply('Debes enviar la foto y colocar \n!verificar como descripcion de la foto.')
     } 
 })
+
+client.on('message', async (msg) => {
+    if(msg.body.startsWith('!recordatorio')) {
+        const parts = msg.body.split(' ');
+        if(parts.length < 3) {
+            msg.reply('Por favor, proporciona los minutos y el mensaje para el recordatorio. Ejemplo: !recordatorio 30m Reunión importante');
+            return;
+        }
+
+        const timeString = parts[1];
+        const message = parts.slice(2).join(' ');
+
+        const timeUnit = timeString.charAt(timeString.length - 1);
+        const timeValue = parseInt(timeString.slice(0, -1));
+
+        if(isNaN(timeValue) || timeValue <= 0) {
+            msg.reply('Por favor, proporciona un número válido de tiempo para el recordatorio.');
+            return;
+        }
+
+        let reminderTime;
+        if (timeUnit === 'm') {
+            reminderTime = new Date(Date.now() + timeValue * 60000);
+        } else if (timeUnit === 'h') {
+            reminderTime = new Date(Date.now() + timeValue * 3600000);
+        } else if (timeUnit === 's') {
+            reminderTime = new Date(Date.now() + timeValue * 1000);
+        } else {
+            msg.reply('Por favor, utiliza "m" para minutos, "h" para horas o "s" para segundos.');
+            return;
+        }
+
+        schedule.scheduleJob(reminderTime, function(){
+            msg.reply(`Es hora de: ${message}`);
+        });
+
+        msg.reply(`Recordatorio establecido para dentro de ${timeValue} ${timeUnit} con el mensaje: "${message}"`);
+    }
+});
 
 client.on('message', async (msg) =>{
     if(msg.body == '!rol'){
@@ -215,6 +290,8 @@ client.on('message', msg => {
         else console.log(msg.deviceType);
     }
 })
+
+
 
 client.on('message', msg => {
     if (msg.body == 'test'){
@@ -248,37 +325,42 @@ client.on('message', msg => {
     
 
     else if (msg.hasMedia){
-        if (msg.body == '!sticker'){
-            msg.downloadMedia().then(media => {
-                if (media) {
-                    const mediaPath = './downloaded-media/';
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
-                    }
-                    const extension = mime.extension(media.mimetype);
-                    const filename = new Date().getTime();
-                    const fullFileName = mediaPath + filename + '.' + extension;
-    
-                    if (media.mimetype.includes('video')) {
-                        // Respond to user that videos are not supported yet
-                        client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
-                    } else {
-                        // Save and send sticker for non-video files
-                        try {
-                            fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
-                            console.log('File Downloaded Successfully', fullFileName);
-                            console.log(fullFileName);
-                            MessageMedia.fromFilePath(filePath = fullFileName);
-                            client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
-                            fs.unlinkSync(fullFileName);
-                            console.log(`File Deleted Successfully`);
-                        } catch (err) {
-                            console.log('Failed to Save the File', err);
-                            console.log(`File Deleted Successfully`);
+        try{
+            if (msg.body == '!sticker'){
+                msg.downloadMedia().then(media => {
+                    if (media) {
+                        const mediaPath = './downloaded-media/';
+                        if (!fs.existsSync(mediaPath)) {
+                            fs.mkdirSync(mediaPath);
+                        }
+                        const extension = mime.extension(media.mimetype);
+                        const filename = new Date().getTime();
+                        const fullFileName = mediaPath + filename + '.' + extension;
+        
+                        if (media.mimetype.includes('video')) {
+                            // Respond to user that videos are not supported yet
+                            client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
+                        } else {
+                            // Save and send sticker for non-video files
+                            try {
+                                fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
+                                console.log('File Downloaded Successfully', fullFileName);
+                                console.log(fullFileName);
+                                MessageMedia.fromFilePath(filePath = fullFileName);
+                                client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
+                                fs.unlinkSync(fullFileName);
+                                console.log(`File Deleted Successfully`);
+                            } catch (err) {
+                                console.log('Failed to Save the File', err);
+                                console.log(`File Deleted Successfully`);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+        } catch (error){
+            console.log(error);
         }
+        
     }
 });
