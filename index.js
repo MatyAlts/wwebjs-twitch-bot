@@ -90,7 +90,6 @@ client.on("ready", () => {
 })})
 
 client.on('message', async (msg) => {
-    try{
         if(msg.body === '!validacion'){
             let Admin = false;
             Admin = await esAdmin(msg);
@@ -102,14 +101,11 @@ client.on('message', async (msg) => {
             } else msg.reply('Comando restringido a administradores')
             
         }
-    } catch (error){
-        console.log(error);
-    }
     
 })
 
 client.on('message', async (msg) => {
-    try{
+
         if (msg.body === '!everyone') {
             const chat = await msg.getChat();
             //console.log(chat.id.user)
@@ -140,9 +136,6 @@ client.on('message', async (msg) => {
             
         
         }
-    } catch (error){
-        console.log(error);
-    }
     
 });
 
@@ -321,7 +314,6 @@ client.on('message', msg => {
     
 
     else if (msg.hasMedia){
-        try{
             if (msg.body == '!sticker'){
                 msg.downloadMedia().then(media => {
                     if (media) {
@@ -354,9 +346,7 @@ client.on('message', msg => {
                     }
                 });
             }
-        } catch (error){
-            console.log(error);
-        }
+
         
     }
 });
