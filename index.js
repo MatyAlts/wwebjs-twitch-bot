@@ -144,8 +144,8 @@ client.on('message', async (msg) =>{
             const chat = await msg.getChat();
             if(!chat.isGroup){
             msg.reply('Para verificar que seas subscriptor, sigue los pasos a continuacion:\n\nEnvia una captura de tu suscripcion junto al comando \n!verificar\n\nNuestros moderadores verificaran si eres suscriptor y te agregarán al grupo de whatsapp.')
-        }
-    } else msg.reply('Este comando solo esta disponible en privado.')
+        } else msg.reply('Este comando solo esta disponible en privado.')
+    } 
     
 })
 
