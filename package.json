@@ -14,6 +14,7 @@
     "mime-types": "^2.1.35",
     "node-schedule": "^2.1.1",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "github:alechkos/whatsapp-web.js#forward-with-caption"
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus",
+    "wwebjs-bot": "file:"
   }
 }
