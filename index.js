@@ -11,11 +11,14 @@ const schedule = require('node-schedule');
 async function esAdmin (msg){
     cliente = await msg.getContact();
     chat = await msg.getChat();
-    const clienteEnGrupo = chat.participants.find(chatObj => chatObj.id.user === cliente.id.user)
-    if(clienteEnGrupo.isAdmin){
-        return true;
+    if(chat.isGroup){
+        const clienteEnGrupo = chat.participants.find(chatObj => chatObj.id.user === cliente.id.user)
+        if(clienteEnGrupo.isAdmin){
+            return true;
+        }
+        else return false;
     }
-    else return false;
+    
 }
 // Path donde la sesión va a estar guardada
 //NO ES NECESARIO
@@ -48,7 +51,7 @@ const nombreArchivoDescargado = 'archivo_descargado.jpg';
 const client = new Client({
     authStrategy: new LocalAuth(), // your authstrategy here
     puppeteer: {
-      headless: true , args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: true , args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
     webVersionCache: {
         type: 'remote',
