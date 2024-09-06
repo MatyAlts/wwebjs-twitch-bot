@@ -299,6 +299,21 @@ client.on('message', async msg => {
 })
 
 client.on('message', async msg => {
+    if (msg.body.startsWith('!eliminar')){
+        const parts = msg.body.split(' ');
+        const filename = (parts[1]);
+        let temp = filename
+        if(fs.existsSync(`./downloads/${filename}`)){
+            fs.unlinkSync(`./downloads/${filename}`);
+            msg.reply(`Archivo ${temp} eliminado!`)
+        }
+        else{
+            msg.reply('El archivo solicitado no existe.')
+        }
+    }
+})
+
+client.on('message', async msg => {
     if (msg.body.startsWith('!horario')){
         const filename = 'horario.xlsx'
         if(fs.existsSync(`./downloads/${filename}`)){
@@ -376,40 +391,43 @@ client.on('message', msg => {
         }
     }
     
-    else if (msg.hasMedia){
-            if (msg.body == '!sticker'){
-                msg.downloadMedia().then(media => {
-                    if (media) {
-                        const mediaPath = './downloaded-media/';
-                        if (!fs.existsSync(mediaPath)) {
-                            fs.mkdirSync(mediaPath);
-                        }
-                        const extension = mime.extension(media.mimetype);
-                        const filename = new Date().getTime();
-                        const fullFileName = mediaPath + filename + '.' + extension;
-        
-                        if (media.mimetype.includes('video')) {
-                            // Respond to user that videos are not supported yet
-                            client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
-                        } else {
-                            // Save and send sticker for non-video files
-                            try {
-                                fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
-                                console.log('File Downloaded Successfully', fullFileName);
-                                console.log(fullFileName);
-                                MessageMedia.fromFilePath(filePath = fullFileName);
-                                client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
-                                fs.unlinkSync(fullFileName);
-                                console.log(`File Deleted Successfully`);
-                            } catch (err) {
-                                console.log('Failed to Save the File', err);
-                                console.log(`File Deleted Successfully`);
-                            }
+client.on('message', msg => {
+    if (msg.hasMedia){
+        if (msg.body == '!sticker'){
+            msg.downloadMedia().then(media => {
+                if (media) {
+                    const mediaPath = './downloaded-media/';
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+                    const extension = mime.extension(media.mimetype);
+                    const filename = new Date().getTime();
+                    const fullFileName = mediaPath + filename + '.' + extension;
+    
+                    if (media.mimetype.includes('video')) {
+                        // Respond to user that videos are not supported yet
+                        client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
+                    } else {
+                        // Save and send sticker for non-video files
+                        try {
+                            fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
+                            console.log('File Downloaded Successfully', fullFileName);
+                            console.log(fullFileName);
+                            MessageMedia.fromFilePath(filePath = fullFileName);
+                            client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
+                            fs.unlinkSync(fullFileName);
+                            console.log(`File Deleted Successfully`);
+                        } catch (err) {
+                            console.log('Failed to Save the File', err);
+                            console.log(`File Deleted Successfully`);
                         }
                     }
-                });
+                }
+            });
             }
 
         
     }
+})
+
 });
