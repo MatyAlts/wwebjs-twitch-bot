@@ -20,7 +20,7 @@ async function esAdmin (msg){
     }
     
 }
-// Path donde la sesión va a estar guardada
+// Path donde la sesión va a estar guardadaA
 //NO ES NECESARIO
 //const SESSION_FILE_PATH = './session.json';
 
@@ -49,7 +49,9 @@ const nombreArchivoDescargado = 'archivo_descargado.jpg';
 
 
 const client = new Client({
-    authStrategy: new LocalAuth(), // your authstrategy here
+    authStrategy: new LocalAuth({
+        dataPath: 'session'
+    }), // your authstrategy here
     puppeteer: {
         headless: true , args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
@@ -282,6 +284,32 @@ client.on('message', msg => {
     }
 })
 
+client.on('message', async msg => {
+    if (msg.body.startsWith('!enviar')){
+        const parts = msg.body.split(' ');
+        const filename = (parts[1]);
+        if(fs.existsSync(`./downloads/${filename}`)){
+            const media = MessageMedia.fromFilePath(`./downloads/${filename}`);
+            await client.sendMessage(msg.from, media)
+        }
+        else{
+            msg.reply('El archivo solicitado no existe.')
+        }
+    }
+})
+
+client.on('message', async msg => {
+    if (msg.body.startsWith('!horario')){
+        const filename = 'horario.xlsx'
+        if(fs.existsSync(`./downloads/${filename}`)){
+            const media = MessageMedia.fromFilePath(`./downloads/${filename}`);
+            await client.sendMessage(msg.from, media)
+        }
+        else{
+            msg.reply('El archivo solicitado no existe.')
+        }
+    }
+})
 
 
 client.on('message', msg => {
@@ -313,8 +341,41 @@ client.on('message', msg => {
     }
     }
 
-    
+    else if (msg.hasMedia){
+        if(msg.body.startsWith('!descargar')) {
+            msg.downloadMedia().then(media =>{
+                const parts = msg.body.split(' ');
+                const filename = (parts[1]);
+                console.log(filename)
+                if(parts.length < 2) {
+                    msg.reply('Por favor, proporciona un nombre para guardar el archivo. Ejemplo: !descargar excel_horarios');
+                    return;
+                }
+                if (media){
+                    const mediaPath = './downloads/';
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+                    const extension = mime.extension(media.mimetype);
+                    const fileWithExtension = filename + '.' + extension;
+                    const fullFileName = mediaPath + filename + '.' + extension;
+                    console.log('File Downloaded Successfully', fullFileName);
 
+                    try {
+                        fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
+                        console.log('File Downloaded Successfully', fullFileName);
+                        console.log(fullFileName);
+                        MessageMedia.fromFilePath(filePath = fullFileName);
+                        msg.reply(`Archivo guardado como: ${fileWithExtension}`);
+                    } catch (err) {
+                        console.log('Failed to Save the File', err);
+                        console.log(`File Deleted Successfully`);
+                    }
+                }
+            })
+        }
+    }
+    
     else if (msg.hasMedia){
             if (msg.body == '!sticker'){
                 msg.downloadMedia().then(media => {
