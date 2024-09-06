@@ -355,7 +355,42 @@ client.on('message', msg => {
             msg.reply("random 8")
     }
     }
+    else if (msg.hasMedia){
+        if (msg.body == '!sticker'){
+            msg.downloadMedia().then(media => {
+                if (media) {
+                    const mediaPath = './downloaded-media/';
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+                    const extension = mime.extension(media.mimetype);
+                    const filename = new Date().getTime();
+                    const fullFileName = mediaPath + filename + '.' + extension;
+    
+                    if (media.mimetype.includes('video')) {
+                        // Respond to user that videos are not supported yet
+                        client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
+                    } else {
+                        // Save and send sticker for non-video files
+                        try {
+                            fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
+                            console.log('File Downloaded Successfully', fullFileName);
+                            console.log(fullFileName);
+                            MessageMedia.fromFilePath(filePath = fullFileName);
+                            client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
+                            fs.unlinkSync(fullFileName);
+                            console.log(`File Deleted Successfully`);
+                        } catch (err) {
+                            console.log('Failed to Save the File', err);
+                            console.log(`File Deleted Successfully`);
+                        }
+                    }
+                }
+            });
+        }
 
+    
+}
     else if (msg.hasMedia){
         if(msg.body.startsWith('!descargar')) {
             msg.downloadMedia().then(media =>{
@@ -391,43 +426,6 @@ client.on('message', msg => {
         }
     }
     
-client.on('message', msg => {
-    if (msg.hasMedia){
-        if (msg.body == '!sticker'){
-            msg.downloadMedia().then(media => {
-                if (media) {
-                    const mediaPath = './downloaded-media/';
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
-                    }
-                    const extension = mime.extension(media.mimetype);
-                    const filename = new Date().getTime();
-                    const fullFileName = mediaPath + filename + '.' + extension;
-    
-                    if (media.mimetype.includes('video')) {
-                        // Respond to user that videos are not supported yet
-                        client.sendMessage(msg.from, '¡Lo siento! Todavía no es compatible con videos.');
-                    } else {
-                        // Save and send sticker for non-video files
-                        try {
-                            fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
-                            console.log('File Downloaded Successfully', fullFileName);
-                            console.log(fullFileName);
-                            MessageMedia.fromFilePath(filePath = fullFileName);
-                            client.sendMessage(msg.from, new MessageMedia(media.mimetype, media.data, filename), { sendMediaAsSticker: true, stickerAuthor: "By MatyAlts's Bot", stickerName: "@maty.torres_" });
-                            fs.unlinkSync(fullFileName);
-                            console.log(`File Deleted Successfully`);
-                        } catch (err) {
-                            console.log('Failed to Save the File', err);
-                            console.log(`File Deleted Successfully`);
-                        }
-                    }
-                }
-            });
-            }
 
-        
-    }
-})
 
 });
