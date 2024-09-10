@@ -7,6 +7,10 @@ const { MessageMedia, Message, GroupChat } = require('whatsapp-web.js/src/struct
 const mime = require('mime-types');
 const axios = require('axios');
 const schedule = require('node-schedule');
+const cursosPath = __dirname + '/config/cursos.json';
+
+
+
 
 const express = require('express');
 const app = express();
@@ -31,6 +35,27 @@ async function esAdmin (msg){
         else return false;
     }
     
+}
+
+function strMes (mes) {
+    if (mes > 0 && mes < 13){
+        switch(mes){
+            case 1: return 'Enero';
+            case 2: return 'Febrero';
+            case 3: return 'Marzo';
+            case 4: return 'Abril';
+            case 5: return 'Mayo';
+            case 6: return 'Junio';
+            case 7: return 'Julio';
+            case 8: return 'Agosto';
+            case 9: return 'Septiembre';
+            case 10: return 'Octubre';
+            case 11: return 'Noviembre';
+            case 12: return 'Diciembre';
+        }
+    } else{
+        return undefined
+    }
 }
 // Path donde la sesión va a estar guardadaA
 //NO ES NECESARIO
@@ -118,6 +143,46 @@ client.on('message', async (msg) => {
             
         }
     
+})
+
+client.on('message', async (msg) => {
+    if (msg.body.startsWith('!horarioCursado')){
+        const chat = await msg.getChat();
+        let user = await msg.getContact();
+        if(chat.isGroup){
+            console.log('primer pass')
+            if(chat.id.user == '120363311325676314'){
+                console.log('segundo pass')
+                parts = msg.body.split(' ')
+                if(parts.length > 1){
+                    console.log('tercer pass')
+                    try{
+                        console.log('cuarto pass')
+                        fs.readFile(cursosPath, 'utf8', (err, data) => {
+                            if (err) {
+                              console.error('Error al leer el archivo JSON:', err);
+                              return;
+                            } try{
+                                const cursos = JSON.parse(data);
+                                let dia = parts[1].toLowerCase()
+                                nombreDia = dia
+                                dia = cursos.cursos[dia];
+                                msg.reply(`*${nombreDia}*\n\nMateria: ${dia.nombre}\nHora: ${dia.hora}\n\nComo llegar:\n${dia['como-llegar']}`)
+                            } catch (parseError) {
+                                console.error('Error al parsear el archivo JSON:', parseError);
+                              }
+                        }
+                    );
+                            let dia = parts[1].toLowerCase()
+                            dia = data.cursos.$(dia);
+                            msg.reply(`*${dia}*\nMateria: ${dia.nombre}\nHora: ${dia.hora}\nComo llegar: ${dia['como-llegar']}`)
+                    } catch (err) {
+
+                    }
+                }
+            }
+        }
+    }
 })
 
 client.on('message', async (msg) => {
@@ -281,6 +346,46 @@ client.on('message', async (msg) =>{
     }
 })
 
+client.on('message', async msg => {
+    if (msg.body.startsWith('!agregarParcial')){
+        const parts = msg.body.split(' ')
+        if(parts.length > 2){
+            const materia = parts[1]
+            const fecha = parts[2]
+            let listaFecha = []
+            listaFecha = fecha.split('/')
+            let dia
+            let mes
+            if(listaFecha.length == 2 ){
+                try{
+                    dia = parseInt(listaFecha[0])
+                } catch (err){
+                    msg.reply('Formato invalido', err)
+                }
+                if(dia > 0 && dia < 32){
+                    mes = strMes(parseInt(listaFecha[1]))
+                    if (mes == undefined){
+                        msg.reply('Mes invalido!')
+                    } else {
+                        msg.reply(`Recordatorio de ${materia} creado para el dia ${dia} de ${mes}`)
+                        //codigo
+                    }
+                } else {
+                    msg.reply('Dia invalido!')
+                }
+            } else{
+                console.log(listaFecha)
+                console.log(listaFecha.length)
+                msg.reply('Formato de fecha invalido!')
+            }
+        } else {
+            msg.reply('Ingrese la materia y la fecha.\nEjemplo: !agregarParcial Matematica 25/10')
+        }
+    }
+})
+
+
+
 client.on('message', msg => {
     if (msg.body == '!device'){
         if (msg.deviceType === 'ios'){
@@ -326,7 +431,7 @@ client.on('message', async msg => {
 })
 
 client.on('message', async msg => {
-    if (msg.body.startsWith('!horario')){
+    if (msg.body === '!horario'){
         const filename = 'horario.xlsx'
         if(fs.existsSync(`./downloads/${filename}`)){
             const media = MessageMedia.fromFilePath(`./downloads/${filename}`);
@@ -339,7 +444,7 @@ client.on('message', async msg => {
 })
 
 client.on('message', async msg => {
-    if (msg.body.startsWith('!horario')){
+    if (msg.body === '!horario'){
         const filename = 'horario.jpeg'
         if(fs.existsSync(`./downloads/${filename}`)){
             const media = MessageMedia.fromFilePath(`./downloads/${filename}`);
@@ -350,43 +455,6 @@ client.on('message', async msg => {
         }
     }
 })
-
-client.on('message', msg => {
-    if (msg.hasMedia){
-        if(msg.body == '!horario') {
-            msg.downloadMedia().then(media =>{
-                const parts = msg.body.split(' ');
-                const filename = (parts[1]);
-                console.log(filename)
-                if(parts.length < 2) {
-                    msg.reply('Por favor, proporciona un nombre para guardar el archivo. Ejemplo: !descargar excel_horarios');
-                    return;
-                }
-                if (media){
-                    const mediaPath = './downloads/';
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
-                    }
-                    const extension = mime.extension(media.mimetype);
-                    const fileWithExtension = filename + '.' + extension;
-                    const fullFileName = mediaPath + filename + '.' + extension;
-                    console.log('File Downloaded Successfully', fullFileName);
-    
-                    try {
-                        fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
-                        console.log('File Downloaded Successfully', fullFileName);
-                        console.log(fullFileName);
-                        MessageMedia.fromFilePath(filePath = fullFileName);
-                        msg.reply(`Archivo guardado como: ${fileWithExtension}`);
-                    } catch (err) {
-                        console.log('Failed to Save the File', err);
-                        console.log(`File Deleted Successfully`);
-                    }
-                }
-            })
-        }
-    }
-});
 
 
 

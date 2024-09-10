@@ -1,0 +1,29 @@
+{
+    "cursos": {
+      "lunes": {
+        "nombre": "sistemas operativos",
+        "hora": "8:00 a 10:15",
+        "como-llegar": "Bajar media escalera, subir las escaleras de enfrente, girar a la derecha, curso LIQ"
+      },
+      "martes": {
+        "nombre": "laboratorio",
+        "hora": "8:00 a 10:15",
+        "como-llegar": "Bajar 1 piso, seguir todo derecho, girar a la derecha y subir segundo piso de civil, curso LIC2"
+      },
+      "miercoles": {
+        "nombre": "matemática",
+        "hora": "8:00 a 10:15",
+        "como-llegar": "Bajar 1 piso, seguir todo derecho, girar a la derecha y subir segundo piso de civil, curso LIC2"
+      },
+      "jueves": {
+        "nombre": "python",
+        "hora": "8:00 a 10:15",
+        "como-llegar": "Bajar media escalera, subir las escaleras de enfrente, girar a la derecha, curso LIQ"
+      },
+      "viernes": {
+        "nombre": "organización empresarial",
+        "hora": "8:00 a 10:15",
+        "como-llegar": "Bajar 1 piso, seguir todo derecho, girar a la derecha y subir segundo piso de civil, curso LIC2"
+      }
+    }
+  }
