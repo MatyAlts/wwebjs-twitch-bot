@@ -1,0 +1,10 @@
+version: '1'
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+      - "2222:2222"
+      
+volumes:
+  db-data:

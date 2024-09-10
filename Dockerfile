@@ -11,6 +11,6 @@ WORKDIR /app
 
 RUN npm install
 
-EXPOSE 3000
+EXPOSE 2222 80
 
 CMD [ "node", "index.js" ]

@@ -8,6 +8,18 @@ const mime = require('mime-types');
 const axios = require('axios');
 const schedule = require('node-schedule');
 
+const express = require('express');
+const app = express();
+const port = 80;
+
+app.get('/', (req, res) => {
+  res.send('¡Hola, mundo!');
+});
+
+app.listen(port, () => {
+  console.log(`Aplicación escuchando en http://localhost:${port}`);
+});
+
 async function esAdmin (msg){
     cliente = await msg.getContact();
     chat = await msg.getChat();
@@ -156,7 +168,7 @@ client.on('message', async (msg) =>{
 client.on('message', async (msg) => {
     if (msg.body == '!commands'){
         
-        msg.reply('Estos son los comandos disponibles actualmente 😉\n\n!sticker:\nEnvia una foto con !sticker en la descripcion para convertirlo en sticker\n\n!everyone:\nEtiqueta a todos los participantes del grupo (solo owner)\n\n!validacion:\n(experimental solo admin)\n\n!device:\nverifica si tienes android o ios\n\n!rol:\nPermite identificar tu rol en el grupo')
+        msg.reply('Estos son los comandos disponibles actualmente 😉\n\n!sticker:\nEnvia una foto con !sticker en la descripcion para convertirlo en sticker\n\n!everyone:\nEtiqueta a todos los participantes del grupo (solo owner)\n\n!validacion:\n(experimental solo admin)\n\n!device:\nVerifica si tienes android o ios\n\n!rol:\nPermite identificar tu rol en el grupo\n\n!recordatorio:\nCrear un recordatorio 🕑:\n\nEjemplo: !recordatorio 30m Reunión importante')
     }
 });
 
@@ -183,7 +195,7 @@ client.on('message', async (msg) =>{
         } 
     } 
 })
-client.on('message', async (msg) => {
+/*client.on('message', async (msg) => {
     if(msg.body.startsWith('!spam')) {
         const parts = msg.body.split(' ');
         if(parts.length < 3) {
@@ -203,7 +215,7 @@ client.on('message', async (msg) => {
             client.sendMessage(msg.from, message);
         }
     }
-});
+});*/
 
 client.on('message', async (msg) =>{
     if(msg.body == '!verificar2'){
@@ -326,6 +338,57 @@ client.on('message', async msg => {
     }
 })
 
+client.on('message', async msg => {
+    if (msg.body.startsWith('!horario')){
+        const filename = 'horario.jpeg'
+        if(fs.existsSync(`./downloads/${filename}`)){
+            const media = MessageMedia.fromFilePath(`./downloads/${filename}`);
+            await client.sendMessage(msg.from, media)
+        }
+        else{
+            msg.reply('El archivo solicitado no existe.')
+        }
+    }
+})
+
+client.on('message', msg => {
+    if (msg.hasMedia){
+        if(msg.body == '!horario') {
+            msg.downloadMedia().then(media =>{
+                const parts = msg.body.split(' ');
+                const filename = (parts[1]);
+                console.log(filename)
+                if(parts.length < 2) {
+                    msg.reply('Por favor, proporciona un nombre para guardar el archivo. Ejemplo: !descargar excel_horarios');
+                    return;
+                }
+                if (media){
+                    const mediaPath = './downloads/';
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+                    const extension = mime.extension(media.mimetype);
+                    const fileWithExtension = filename + '.' + extension;
+                    const fullFileName = mediaPath + filename + '.' + extension;
+                    console.log('File Downloaded Successfully', fullFileName);
+    
+                    try {
+                        fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
+                        console.log('File Downloaded Successfully', fullFileName);
+                        console.log(fullFileName);
+                        MessageMedia.fromFilePath(filePath = fullFileName);
+                        msg.reply(`Archivo guardado como: ${fileWithExtension}`);
+                    } catch (err) {
+                        console.log('Failed to Save the File', err);
+                        console.log(`File Deleted Successfully`);
+                    }
+                }
+            })
+        }
+    }
+});
+
+
 
 client.on('message', msg => {
     if (msg.body == 'test'){
@@ -391,40 +454,6 @@ client.on('message', msg => {
 
     
 }
-    else if (msg.hasMedia){
-        if(msg.body.startsWith('!descargar')) {
-            msg.downloadMedia().then(media =>{
-                const parts = msg.body.split(' ');
-                const filename = (parts[1]);
-                console.log(filename)
-                if(parts.length < 2) {
-                    msg.reply('Por favor, proporciona un nombre para guardar el archivo. Ejemplo: !descargar excel_horarios');
-                    return;
-                }
-                if (media){
-                    const mediaPath = './downloads/';
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
-                    }
-                    const extension = mime.extension(media.mimetype);
-                    const fileWithExtension = filename + '.' + extension;
-                    const fullFileName = mediaPath + filename + '.' + extension;
-                    console.log('File Downloaded Successfully', fullFileName);
-
-                    try {
-                        fs.writeFileSync(fullFileName, media.data, { encoding: 'base64' });
-                        console.log('File Downloaded Successfully', fullFileName);
-                        console.log(fullFileName);
-                        MessageMedia.fromFilePath(filePath = fullFileName);
-                        msg.reply(`Archivo guardado como: ${fileWithExtension}`);
-                    } catch (err) {
-                        console.log('Failed to Save the File', err);
-                        console.log(`File Deleted Successfully`);
-                    }
-                }
-            })
-        }
-    }
     
 
 
