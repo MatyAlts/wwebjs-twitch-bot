@@ -39,7 +39,7 @@ if (msg.body.startsWith('!horarioCursado')){
     let user = await msg.getContact();
     if(chat.isGroup){
         console.log('primer pass')
-        if(chat.id.user == '120363311325676314'){
+        if(chat.id.user == '120363311325676314' || chat.id.user == '120363323288337801'){
             console.log('segundo pass')
             parts = msg.body.split(' ')
             if(parts.length > 1){
