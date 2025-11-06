@@ -16,7 +16,7 @@ console.log('💻 Node version:', process.version);
 
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 
 let qrCodeImage = null;
 let botStatus = 'Iniciando...';
