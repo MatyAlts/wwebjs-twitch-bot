@@ -1,17 +1,9 @@
-version: '3.8'
-
 services:
   whatsapp-bot:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wwebjs-twitch-bot
     restart: unless-stopped
-    
-    # NO exponer puertos manualmente en Easypanel
-    # Easypanel maneja el routing automáticamente
-    expose:
-      - "80"
     
     # Variables de entorno
     environment:
