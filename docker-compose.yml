@@ -1,10 +1,51 @@
-version: '1'
+version: '3.8'
+
 services:
-  web:
-    build: .
+  whatsapp-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wwebjs-twitch-bot
+    restart: unless-stopped
+    
+    # Configuración de red
     ports:
       - "80:80"
-      - "2222:2222"
-      
-volumes:
-  db-data:
+    
+    # Variables de entorno
+    environment:
+      - NODE_ENV=production
+      - TZ=America/Argentina/Buenos_Aires
+    
+    # Volúmenes para persistir datos
+    volumes:
+      - ./session:/app/session
+      - ./downloaded-media:/app/downloaded-media
+      - ./downloads:/app/downloads
+      - ./config:/app/config
+    
+    # Configuración de recursos
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Configuración de seguridad para Chromium
+    security_opt:
+      - seccomp:unconfined
+    
+    # Capabilities necesarias para Chromium
+    cap_add:
+      - SYS_ADMIN
+    
+    # Healthcheck para verificar que el bot está funcionando
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
