@@ -8,7 +8,7 @@ services:
     # Variables de entorno
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=8080
       - TZ=America/Argentina/Buenos_Aires
     
     # Volúmenes para persistir datos
@@ -38,7 +38,7 @@ services:
     
     # Healthcheck para verificar que el bot está funcionando
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
