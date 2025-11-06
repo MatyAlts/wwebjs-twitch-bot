@@ -8,9 +8,10 @@ services:
     container_name: wwebjs-twitch-bot
     restart: unless-stopped
     
-    # Configuración de red
-    ports:
-      - "80:80"
+    # NO exponer puertos manualmente en Easypanel
+    # Easypanel maneja el routing automáticamente
+    expose:
+      - "80"
     
     # Variables de entorno
     environment:
