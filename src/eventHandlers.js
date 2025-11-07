@@ -30,12 +30,12 @@ exports.eventHandlers = function (client) {
                         chunks.push(participants.slice(i, i + chunkSize));
                     }
                     
-                    await msg.reply(`🚀 Iniciando mención masiva para ${participants.length} miembros en ${chunks.length} mensajes.`);
+                    await msg.reply(`🚀 Iniciando mención`);
                     
                     for (let i = 0; i < chunks.length; i++) {
                         if (i > 0) await new Promise(resolve => setTimeout(resolve, delayBetweenChunks));
                         
-                        let text = i === 0 ? "🔴 ¡STREAM EN VIVO! 🎮\n\n" : `📢 Parte ${i + 1}/${chunks.length}:\n\n`;
+                        let text = "";
                         let mentions = [];
                         
                         for (let participant of chunks[i]) {
@@ -48,11 +48,10 @@ exports.eventHandlers = function (client) {
                     }
                     
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    await msg.reply(`✅ Mención masiva completada!`);
-                    await chat.sendMessage('kick.com/teosilvas');
+                    await msg.reply('✅ Mención completada!');
                 } catch (error) {
                     console.error('Error en mención masiva:', error);
-                    await msg.reply('❌ Error crítico en la mención masiva.');
+                    await msg.reply('❌ Error crítico en la mención.');
                 }
             }
             
